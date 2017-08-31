@@ -3,7 +3,7 @@
 
 #include <libcellml>
 
-#include "xmlutils.h"
+#include "modelloader.h"
 
 static void usage(const char* progname)
 {
@@ -21,36 +21,15 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::string modelUrl = XmlDoc::buildAbsoluteUri(argv[1], "");
-    XmlDoc modelDoc;
-    if (modelDoc.parseDocument(modelUrl) == 0)
+    ModelLoader loader;
+    if (loader.loadModel(argv[1], ""))
     {
-        std::string modelString = modelDoc.dumpString();
-        // Parse
-        libcellml::Parser parser(libcellml::Format::XML);
-        libcellml::ModelPtr model = parser.parseModel(modelString);
-        if (0 != parser.errorCount())
-        {
-            std::cerr << "Error parsing the CellML model: " << modelUrl << std::endl;
-            for (size_t i = 0; i < parser.errorCount(); ++i) {
-                std::cerr << parser.getError(i)->getDescription() << std::endl;
-            }
-            return -3;
-        }
-        libcellml::Validator validator;
-        validator.validateModel(model);
-        if (0 != validator.errorCount())
-        {
-            std::cerr << "Error validating the CellML model: " << modelUrl << std::endl;
-            for (size_t i = 0; i < validator.errorCount(); ++i) {
-                std::cerr << validator.getError(i)->getDescription() << std::endl;
-            }
-            return -4;
-        }
+        libcellml::ModelPtr model = loader.getModel();
+
     }
     else
     {
-        std::cerr << "Error loading the model: " << modelUrl << std::endl;
+        std::cerr << "Error loading the model: " << argv[1] << std::endl;
         return -2;
     }
     return 0;

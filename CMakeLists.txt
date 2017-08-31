@@ -17,3 +17,6 @@ find_package(CURL REQUIRED)
 #find_package(LibXml2 REQUIRED)
 
 add_subdirectory(src)
+# enable testing here to get the 'test' target.
+enable_testing()
+add_subdirectory(testing)
