@@ -55,7 +55,7 @@ bool ModelLoader::loadModel(const std::string& modelUrl,
                 std::cerr << validator.getError(i)->getDescription()
                           << std::endl;
             }
-            return false;
+            //return false;
         }
         pImpl->model = model;
         pImpl->url = url;
