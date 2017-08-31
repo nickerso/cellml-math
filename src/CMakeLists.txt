@@ -1,12 +1,14 @@
 
 set(CMATH_SRCS
     modelloader.cpp
+    modelresolver.cpp
     xmlutils.cpp
     cmath.cpp
     )
 
 set(CMATH_HDRS
     modelloader.h
+    modelresolver.h
     xmlutils.h
     )
 

@@ -4,6 +4,7 @@
 #include <libcellml>
 
 #include "modelloader.h"
+#include "modelresolver.h"
 
 static void usage(const char* progname)
 {
@@ -26,6 +27,17 @@ int main(int argc, char* argv[])
     {
         libcellml::ModelPtr model = loader.getModel();
         std::string modelUrl = loader.getModelUrl();
+        ModelResolver resolver;
+        if (resolver.resolveModel(model, modelUrl))
+        {
+
+        }
+        else
+        {
+            std::cerr << "Error resolving imports in the model: "
+                      << argv[1] << std::endl;
+            return -3;
+        }
     }
     else
     {
