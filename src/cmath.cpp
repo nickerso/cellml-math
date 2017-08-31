@@ -5,6 +5,7 @@
 
 #include "modelloader.h"
 #include "modelresolver.h"
+#include "mathextractor.h"
 
 static void usage(const char* progname)
 {
@@ -22,27 +23,31 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    // load the model
     ModelLoader loader;
-    if (loader.loadModel(argv[1], ""))
-    {
-        libcellml::ModelPtr model = loader.getModel();
-        std::string modelUrl = loader.getModelUrl();
-        ModelResolver resolver;
-        if (resolver.resolveModel(model, modelUrl))
-        {
-
-        }
-        else
-        {
-            std::cerr << "Error resolving imports in the model: "
-                      << argv[1] << std::endl;
-            return -3;
-        }
-    }
-    else
+    if (! loader.loadModel(argv[1], ""))
     {
         std::cerr << "Error loading the model: " << argv[1] << std::endl;
         return -2;
+    }
+    libcellml::ModelPtr model = loader.getModel();
+    std::string modelUrl = loader.getModelUrl();
+
+    // resolve the model
+    ModelResolver resolver;
+    if (! resolver.resolveModel(model, modelUrl))
+    {
+        std::cerr << "Error resolving imports in the model: "
+                  << argv[1] << std::endl;
+        return -3;
+    }
+
+    // extract the math from the model
+    MathExtractor extractor;
+    if (! extractor.extractMath(model))
+    {
+        std::cerr << "Error extracting math from the model: " << argv[1] << std::endl;
+        return -4;
     }
     return 0;
 }
