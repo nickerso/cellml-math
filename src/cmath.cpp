@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     if (loader.loadModel(argv[1], ""))
     {
         libcellml::ModelPtr model = loader.getModel();
-
+        std::string modelUrl = loader.getModelUrl();
     }
     else
     {

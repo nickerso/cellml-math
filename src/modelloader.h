@@ -33,6 +33,14 @@ public:
      */
     libcellml::ModelPtr getModel() const;
 
+    /**
+     * @brief Get the absolute URL that had been resolved for the loaded model.
+     *
+     * @return The resolved absolute URL for a successfully loaded model, the
+     * empty string otherwise.
+     */
+    std::string getModelUrl() const;
+
 private:
     ModelLoaderImp* pImpl;
 };

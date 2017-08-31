@@ -7,11 +7,12 @@
 class ModelLoaderImp
 {
 public:
-    ModelLoaderImp() : model(nullptr)
+    ModelLoaderImp() : model(nullptr), url("")
     {
     }
 
     libcellml::ModelPtr model;
+    std::string url;
 };
 
 ModelLoader::ModelLoader()
@@ -57,6 +58,7 @@ bool ModelLoader::loadModel(const std::string& modelUrl,
             return false;
         }
         pImpl->model = model;
+        pImpl->url = url;
     }
     return true;
 }
@@ -64,4 +66,9 @@ bool ModelLoader::loadModel(const std::string& modelUrl,
 libcellml::ModelPtr ModelLoader::getModel() const
 {
     return pImpl->model;
+}
+
+std::string ModelLoader::getModelUrl() const
+{
+    return pImpl->url;
 }
