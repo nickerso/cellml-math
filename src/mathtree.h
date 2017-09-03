@@ -2,6 +2,8 @@
 
 #include <libcellml>
 
+class MathTreeImpl;
+
 class MathTree
 {
 public:
@@ -18,4 +20,7 @@ public:
      * @return @c true if math successfully added, @c false otherwise.
      */
     bool addComponentMathML(libcellml::ComponentPtr component);
+
+private:
+    MathTreeImpl* pImpl;
 };

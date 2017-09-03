@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <libxml/tree.h>
 
 class XmlDoc
 {
@@ -12,6 +12,9 @@ public:
     int parseDocument(const std::string& url);
     int parseDocumentString(const std::string& docString);
     std::string dumpString() const;
+
+    xmlDocPtr getXmlDoc();
+
 private:
     void* mXmlDocPtr;
 };

@@ -175,3 +175,14 @@ std::string XmlDoc::dumpString() const
     xmlFree(s);
     return out;
 }
+
+xmlDocPtr XmlDoc::getXmlDoc()
+{
+    xmlDocPtr doc = static_cast<xmlDocPtr>(mXmlDocPtr);
+    if (doc == NULL)
+    {
+        std::cerr << "Error getting doc ptr.\n";
+        return nullptr;
+    }
+    return doc;
+}
