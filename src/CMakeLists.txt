@@ -3,6 +3,7 @@ set(CMATH_SRCS
     modelloader.cpp
     modelresolver.cpp
     mathextractor.cpp
+    mathtree.cpp
     xmlutils.cpp
     cmath.cpp
     )
@@ -11,6 +12,7 @@ set(CMATH_HDRS
     modelloader.h
     modelresolver.h
     mathextractor.h
+    mathtree.h
     xmlutils.h
     )
 
