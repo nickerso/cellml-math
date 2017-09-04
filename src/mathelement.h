@@ -5,6 +5,7 @@
 
 enum MathType {
     MATH_UNDEFINED,
+    MATH_EXPRESSION,
     MATH_EQ,
     MATH_CI
 };
@@ -29,6 +30,21 @@ public:
 
 private:
     MathElement();
+};
+
+class MathExpression : public MathElement
+{
+public:
+    MathExpression() : MathElement(nullptr)
+    {
+    }
+
+    inline virtual enum MathType getType() const
+    {
+        return MATH_EXPRESSION;
+    }
+
+    std::vector<libcellml::VariablePtr> variables;
 };
 
 class NaryOperator : public MathElement {

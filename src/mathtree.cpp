@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #include "mathtree.h"
 #include "xmlutils.h"
@@ -59,6 +60,22 @@ void Ci::build(MathElement* parent, xmlNodePtr node,
     std::string variableName = trim(textString);
     std::cout << "<ci> variable name = " << variableName << std::endl;
     variable = component->getVariable(variableName);
+    // add the variable to the parent expression
+    MathElement* e = parent;
+    while (e && (e->getType() != MATH_EXPRESSION))
+    {
+        e = e->parent;
+    }
+    MathExpression* expression = dynamic_cast<MathExpression*>(e);
+    std::vector<libcellml::VariablePtr>::iterator it;
+    it = std::find(expression->variables.begin(),
+                   expression->variables.end(), variable);
+    if (it == expression->variables.end())
+    {
+        std::cout << "Adding to the expression variables the variable: "
+                  << variable->getName() << std::endl;
+        expression->variables.push_back(variable);
+    }
 }
 
 static MathElement* createMathElement(MathElement* parent, xmlNodePtr node,
@@ -100,19 +117,24 @@ class MathTreeImpl {
 public:
     MathTreeImpl()
     {
-        root = new MathElement(nullptr);
     }
     ~MathTreeImpl()
     {
-        delete root;
+        for (auto& expression: expressions)
+        {
+            delete expression;
+        }
     }
     void appendChild(xmlNodePtr node, libcellml::ComponentPtr component)
     {
-        root->children.push_back(createMathElement(nullptr, node, component));
+        MathExpression* expression = new MathExpression();
+        expression->children.push_back(
+                    createMathElement(expression, node, component));
+        expressions.push_back(expression);
     }
 
 private:
-    MathElement* root;
+    std::vector<MathExpression*> expressions;
 };
 
 MathTree::MathTree()
