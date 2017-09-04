@@ -9,8 +9,6 @@
 #include <sstream>
 #include <vector>
 #include <libxml/parser.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
 #include <libxml/uri.h>
 
 // FIXME: need to do this better?
@@ -34,16 +32,16 @@ public:
     {
         std::cout << "initialise curl\n";
         curl_global_init(CURL_GLOBAL_DEFAULT);
-        std::cout << "initialise libxml\n";
+        //std::cout << "initialise libxml\n";
         /* Init libxml */
-        xmlInitParser();
-        LIBXML_TEST_VERSION
+        //xmlInitParser();
+        //LIBXML_TEST_VERSION
     }
     ~LibXMLWrapper()
     {
-        std::cout << "terminate libxml\n";
+        //std::cout << "terminate libxml\n";
         /* Shutdown libxml */
-        xmlCleanupParser();
+        //xmlCleanupParser();
         std::cout << "cleanup curl\n";
         curl_global_cleanup();
     }
@@ -146,7 +144,9 @@ std::string XmlDoc::buildAbsoluteUri(const std::string& uri,
 
 int XmlDoc::parseDocumentString(const std::string& ds)
 {
-    xmlDocPtr doc = xmlParseDoc(BAD_CAST ds.c_str());
+    xmlParserCtxtPtr context = xmlNewParserCtxt();
+    xmlDocPtr doc = xmlCtxtReadDoc(context, BAD_CAST ds.c_str(), "/", nullptr, 0);
+    xmlFreeParserCtxt(context);
     if (doc == NULL)
     {
         std::cerr << "Error parsing document from string." << std::endl;
