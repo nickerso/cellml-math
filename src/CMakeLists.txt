@@ -13,6 +13,7 @@ set(CMATH_HDRS
     modelresolver.h
     mathextractor.h
     mathtree.h
+    mathelement.h
     xmlutils.h
     )
 

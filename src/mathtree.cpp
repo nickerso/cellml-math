@@ -4,21 +4,54 @@
 #include "mathtree.h"
 #include "xmlutils.h"
 
-class MathElement {
-public:
-    MathElement()
+#include "mathelement.h"
+
+// forward declarations
+static MathElement* createMathElement(xmlNodePtr node,
+                                      libcellml::ComponentPtr component);
+
+static std::string trim(const std::string& str,
+                        const std::string& whitespace = " \t\n\r")
+{
+    const auto strBegin = str.find_first_not_of(whitespace);
+    if (strBegin == std::string::npos)
+        return ""; // no content
+    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strRange = strEnd - strBegin + 1;
+    return str.substr(strBegin, strRange);
+}
+
+MathElement::MathElement()
+{
+}
+
+MathElement::~MathElement()
+{
+    for (auto& child: children)
     {
+        delete child;
     }
-    ~MathElement()
+}
+
+void NaryOperator::build(xmlNodePtr node, libcellml::ComponentPtr component)
+{
+    // n-ary operator
+    while (node)
     {
-        for (auto& child: children)
-        {
-            delete child;
-        }
+        children.push_back(createMathElement(node, component));
+        node = node->next;
     }
-    std::string name;
-    std::vector<MathElement*> children;
-};
+}
+
+void Ci::build(xmlNodePtr node, libcellml::ComponentPtr component)
+{
+    xmlChar* text = xmlNodeListGetString(node->doc, node->children, 1);
+    std::string textString(reinterpret_cast<const char *>(text));
+    xmlFree(text);
+    std::string variableName = trim(textString);
+    std::cout << "<ci> variable name = " << variableName << std::endl;
+    variable = component->getVariable(variableName);
+}
 
 static MathElement* createMathElement(xmlNodePtr node,
                                       libcellml::ComponentPtr component)
@@ -26,11 +59,12 @@ static MathElement* createMathElement(xmlNodePtr node,
     std::string name(reinterpret_cast<const char *>(node->name));
     if (name == "apply")
     {
-        std::cout << "Haven an apply\n";
         std::string opName(reinterpret_cast<const char *>(node->children->name));
         if (opName == "eq")
         {
-            std::cout << "Have a EQ!!\n";
+            Eq* eq = new Eq();
+            eq->build(node->children->next, component);
+            return eq;
         }
         else if (opName == "plus")
         {
@@ -40,7 +74,17 @@ static MathElement* createMathElement(xmlNodePtr node,
         {
             std::cout << "Have a divide!!!!\n";
         }
+        std::cerr << "Don't know how to handle <apply> with the the MathML element: "
+                  << opName << std::endl;
+        return new MathElement();
     }
+    else if (name == "ci")
+    {
+        Ci* ci = new Ci();
+        ci->build(node, component);
+        return ci;
+    }
+    std::cout << "Don't know how to handle the MathML element: " << name << std::endl;
     return new MathElement();
 }
 
