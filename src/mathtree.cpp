@@ -7,7 +7,7 @@
 #include "mathelement.h"
 
 // forward declarations
-static MathElement* createMathElement(xmlNodePtr node,
+static MathElement* createMathElement(MathElement* parent, xmlNodePtr node,
                                       libcellml::ComponentPtr component);
 
 static std::string trim(const std::string& str,
@@ -21,8 +21,14 @@ static std::string trim(const std::string& str,
     return str.substr(strBegin, strRange);
 }
 
+MathElement::MathElement(MathElement *parent) : parent(parent)
+{
+
+}
+
 MathElement::MathElement()
 {
+    parent = nullptr;
 }
 
 MathElement::~MathElement()
@@ -33,17 +39,19 @@ MathElement::~MathElement()
     }
 }
 
-void NaryOperator::build(xmlNodePtr node, libcellml::ComponentPtr component)
+void NaryOperator::build(MathElement* parent, xmlNodePtr node,
+                         libcellml::ComponentPtr component)
 {
     // n-ary operator
     while (node)
     {
-        children.push_back(createMathElement(node, component));
+        children.push_back(createMathElement(parent, node, component));
         node = node->next;
     }
 }
 
-void Ci::build(xmlNodePtr node, libcellml::ComponentPtr component)
+void Ci::build(MathElement* parent, xmlNodePtr node,
+               libcellml::ComponentPtr component)
 {
     xmlChar* text = xmlNodeListGetString(node->doc, node->children, 1);
     std::string textString(reinterpret_cast<const char *>(text));
@@ -53,7 +61,7 @@ void Ci::build(xmlNodePtr node, libcellml::ComponentPtr component)
     variable = component->getVariable(variableName);
 }
 
-static MathElement* createMathElement(xmlNodePtr node,
+static MathElement* createMathElement(MathElement* parent, xmlNodePtr node,
                                       libcellml::ComponentPtr component)
 {
     std::string name(reinterpret_cast<const char *>(node->name));
@@ -62,8 +70,8 @@ static MathElement* createMathElement(xmlNodePtr node,
         std::string opName(reinterpret_cast<const char *>(node->children->name));
         if (opName == "eq")
         {
-            Eq* eq = new Eq();
-            eq->build(node->children->next, component);
+            Eq* eq = new Eq(parent);
+            eq->build(eq, node->children->next, component);
             return eq;
         }
         else if (opName == "plus")
@@ -76,23 +84,23 @@ static MathElement* createMathElement(xmlNodePtr node,
         }
         std::cerr << "Don't know how to handle <apply> with the the MathML element: "
                   << opName << std::endl;
-        return new MathElement();
+        return new MathElement(nullptr);
     }
     else if (name == "ci")
     {
-        Ci* ci = new Ci();
-        ci->build(node, component);
+        Ci* ci = new Ci(parent);
+        ci->build(parent, node, component);
         return ci;
     }
     std::cout << "Don't know how to handle the MathML element: " << name << std::endl;
-    return new MathElement();
+    return new MathElement(nullptr);
 }
 
 class MathTreeImpl {
 public:
     MathTreeImpl()
     {
-        root = new MathElement();
+        root = new MathElement(nullptr);
     }
     ~MathTreeImpl()
     {
@@ -100,7 +108,7 @@ public:
     }
     void appendChild(xmlNodePtr node, libcellml::ComponentPtr component)
     {
-        root->children.push_back(createMathElement(node, component));
+        root->children.push_back(createMathElement(nullptr, node, component));
     }
 
 private:
@@ -120,6 +128,11 @@ MathTree::~MathTree()
 bool MathTree::addComponentMathML(libcellml::ComponentPtr component)
 {
     std::string componentMath = component->getMath();
+    if (componentMath == "")
+    {
+        // no math to add
+        return true;
+    }
     XmlDoc doc;
     if (0 != doc.parseDocumentString(componentMath))
     {

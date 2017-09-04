@@ -11,28 +11,47 @@ enum MathType {
 
 class MathElement {
 public:
-    MathElement();
+    MathElement(MathElement* parent);
     ~MathElement();
-    std::vector<MathElement*> children;
+
     inline virtual enum MathType getType() const
     {
         return MATH_UNDEFINED;
     }
-    virtual void build(xmlNodePtr node, libcellml::ComponentPtr component)
-    {}
+    virtual void build(MathElement* parent, xmlNodePtr node,
+                       libcellml::ComponentPtr component)
+    {
+
+    }
+
+    MathElement* parent;
+    std::vector<MathElement*> children;
+
+private:
+    MathElement();
 };
 
 class NaryOperator : public MathElement {
 public:
+    NaryOperator(MathElement* parent) : MathElement(parent)
+    {
+    }
+
     inline virtual enum MathType getType() const
     {
         return MATH_UNDEFINED;
     }
-    virtual void build(xmlNodePtr node, libcellml::ComponentPtr component);
+
+    virtual void build(MathElement* parent, xmlNodePtr node,
+                       libcellml::ComponentPtr component);
 };
 
 class Eq : public NaryOperator {
 public:
+    Eq(MathElement* parent) : NaryOperator(parent)
+    {
+    }
+
     inline enum MathType getType() const
     {
         return MATH_EQ;
@@ -41,10 +60,15 @@ public:
 
 class Ci : public MathElement {
 public:
+    Ci(MathElement* parent) : MathElement(parent)
+    {
+    }
+
     inline enum MathType getType() const
     {
         return MATH_CI;
     }
-    void build(xmlNodePtr node, libcellml::ComponentPtr component);
+    void build(MathElement* parent, xmlNodePtr node,
+               libcellml::ComponentPtr component);
     libcellml::VariablePtr variable;
 };
