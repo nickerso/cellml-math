@@ -16,6 +16,8 @@ find_package(CURL REQUIRED)
 # built locally?
 #find_package(LibXml2 REQUIRED)
 
+set(EXE_NAME "cellml-math")
+
 add_subdirectory(src)
 # enable testing here to get the 'test' target.
 enable_testing()
