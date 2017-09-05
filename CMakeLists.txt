@@ -19,7 +19,7 @@ find_package(CURL REQUIRED)
 add_subdirectory(src)
 # enable testing here to get the 'test' target.
 enable_testing()
-add_subdirectory(testing)
+add_subdirectory(tests)
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
