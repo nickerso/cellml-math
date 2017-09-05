@@ -46,7 +46,8 @@ void NaryOperator::build(MathElement* parent, xmlNodePtr node,
     // n-ary operator
     while (node)
     {
-        children.push_back(createMathElement(parent, node, component));
+        MathElement* el = createMathElement(parent, node, component);
+        if (el) children.push_back(el);
         node = node->next;
     }
 }
@@ -110,7 +111,7 @@ static MathElement* createMathElement(MathElement* parent, xmlNodePtr node,
         return ci;
     }
     std::cout << "Don't know how to handle the MathML element: " << name << std::endl;
-    return new MathElement(nullptr);
+    return nullptr;
 }
 
 class MathTreeImpl {

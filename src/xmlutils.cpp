@@ -145,9 +145,8 @@ std::string XmlDoc::buildAbsoluteUri(const std::string& uri,
 int XmlDoc::parseDocumentString(const std::string& ds)
 {
     xmlParserCtxtPtr context = xmlNewParserCtxt();
-    xmlCtxtUseOptions(context, XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
     xmlDocPtr doc = xmlCtxtReadDoc(context, BAD_CAST ds.c_str(), "/", nullptr,
-                                   XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+                                   XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_NOBLANKS);
     xmlFreeParserCtxt(context);
     if (doc == NULL)
     {
